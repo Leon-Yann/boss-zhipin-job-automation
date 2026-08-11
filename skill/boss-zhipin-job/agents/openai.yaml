@@ -1,0 +1,4 @@
+interface:
+  display_name: "BOSS直聘求职自动化"
+  short_description: "采集岗位、AI精筛、生成开场白、发送与跟进未读消息"
+  default_prompt: "使用 $boss-zhipin-job 开始今天的 BOSS 直聘求职任务：采集岗位、AI 精筛并生成开场白、发送消息、跟进未读 HR。"
