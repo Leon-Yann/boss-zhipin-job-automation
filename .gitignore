@@ -1,0 +1,14 @@
+node_modules/
+.DS_Store
+skill-staging/
+
+# 用户真实配置与数据（不提交仓库）
+profile.yaml
+docs/resume.md
+
+# data 目录整体忽略（发送记录/评审清单/采集数据均含真实信息），仅保留占位文件
+data/*
+!data/.gitkeep
+
+# 其他 AI 留下的临时脚本（不进仓库）
+scripts/archive/

@@ -1,0 +1,83 @@
+# ============================================================
+# BOSS直聘 AI 求职自动化 — 用户配置模板（示例数据，可随仓库发布）
+# 使用方法：复制本文件为 profile.yaml 后，替换为你的真实信息
+# 校验：node scripts/load-config.mjs --check
+# ============================================================
+
+# ---- 基本信息 ----
+user_name: 张三
+city: 上海
+city_code: "101020100"        # BOSS 直聘城市代码（上海）
+
+# ---- 浏览器环境（机器相关配置） ----
+chrome:
+  # macOS 默认路径；Windows 示例：C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe
+  executable: /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
+  debug_port: 9222
+  # 独立资料目录，登录态保存于此（~ 会自动展开为当前用户目录）
+  user_data_dir: "~/.cache/boss-zhipin-chrome"
+  start_url: https://www.zhipin.com/web/geek/jobs
+
+# ---- 目标岗位与搜索关键词 ----
+target_jobs:
+  - 电商运营
+  - 市场营销
+
+search_keywords:
+  - 电商运营
+  - 市场营销
+  - 品牌运营
+
+# ---- 硬过滤（脚本确定性执行，不经过 AI） ----
+salary_strict:
+  min: 15
+  max: 20
+salary_relaxed:
+  min: 12
+  max: 20
+
+exclude_keywords:
+  - 外包
+  - 培训机构
+
+# 已知需排除的公司名单（公司名包含匹配，命中直接排除）
+exclude_companies: []
+
+jd_hard_exclude:
+  - "需base[于在]?\\s*(?!{city})"
+  - "外派[于在]?\\s*(?!{city})"
+  - "常驻[于在]?\\s*(?!{city})"
+
+# ---- 每日与跟进参数 ----
+daily_target: 30
+daily_max: 50
+collect_pool_ratio: 3
+followup_interval_days: 1
+followup_max_days: 3
+followup_max_messages: 4
+send_interval_seconds: [30, 90]
+
+# 运行模式：建议先用 test 验收筛选与话术质量，确认后改成 auto
+mode: test
+
+# 收藏岗位是否跳过筛选直投：false=与普通岗位一样先筛选；true=直接生成开场白
+favorites_skip_screening: false
+
+# ---- 数据目录 ----
+data_dir: ./data
+
+# ---- AI 画像（注入提示词，不参与脚本硬过滤逻辑） ----
+profile:
+  direction: 电商运营
+  summary: |-
+    3 年品牌电商运营经验（示例内容，请替换为你的真实经历）；
+    曾操盘天猫/京东旗舰店，年 GMV 5000 万+。
+  resume_file: ./docs/resume.example.md
+  company_standards: |-
+    示例：优先知名品牌方或细分行业头部公司（请按你的标准填写）。
+  opening_style: |-
+    1. 开头不用"您好"等寒暄，开门见山，前十几个字放最有价值的匹配信息；
+    2. 全文约 200 字，必须有数据支撑，不说空话；
+    3. 结尾用明确的价值收束或行动引导。
+  followup_style: |-
+    换角度、不重复上次内容；可补充数据点 / 回应 JD 新信息 / 问一个开放问题。

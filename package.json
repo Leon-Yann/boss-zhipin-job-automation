@@ -1,0 +1,19 @@
+{
+  "name": "boss-zhipin-job-automation",
+  "version": "0.3.0",
+  "private": true,
+  "type": "module",
+  "description": "BOSS直聘 AI 求职自动化：DOM 采集 + AI 精筛生成 + 脚本发送的确定性流程",
+  "scripts": {
+    "chrome:start": "node scripts/launch-chrome.mjs",
+    "config:check": "node scripts/load-config.mjs --check",
+    "config:filters": "node scripts/load-config.mjs --filters",
+    "config:prompt": "node scripts/load-config.mjs --prompt"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "yaml": "^2.5.0"
+  }
+}
