@@ -2,6 +2,7 @@
 
 ## 目录
 
+0. 首次使用（自动准备项目）
 1. 环境与依赖
 2. 脚本清单（生产 / 诊断）
 3. 配置（profile.yaml）
@@ -10,6 +11,17 @@
 6. DOM 选择器依赖
 7. 踩坑与规避
 8. 已知限制与待办
+
+## 0. 首次使用（自动准备项目）
+
+Skill 首次运行时自动完成以下步骤（见 SKILL.md"开始前：确保项目就绪"）：
+
+1. 项目目录 = SKILL.md 中的 `<项目目录>`（由 install-skill.mjs 替换为实际路径）；若为占位符或目录不存在，默认 `~/boss-zhipin-job`；
+2. 目录不存在 → `git clone https://github.com/Leon-Yann/boss-zhipin-job-automation.git <项目目录>`，随后 `npm install`；
+3. 目录已存在（git 仓库）→ 可选 `git pull` 更新到最新；有本地未提交修改时跳过；
+4. 无 `profile.yaml` → 复制 `profile.example.yaml` 并引导用户填写（城市/关键词/简历），`node scripts/load-config.mjs --check` 校验通过后继续。
+
+之后所有操作都在项目目录内执行；更新项目后重新运行 `node scripts/install-skill.mjs` 可同步技能本身。
 
 ## 1. 环境与依赖
 
@@ -29,7 +41,7 @@
 | `launch-chrome.mjs` | 启动/复用调试 Chrome（`--open <URL>` / `--check`） |
 | `collect.mjs` | 采集 + 硬过滤（`--source search\|recommend\|favorites`、`--queries "a,b"`、`--pages N`、`--limit N`、`--max-results N`；默认目标 = profile.yaml 的 daily_target；每轮自动合并进当日累计文件） |
 | `send.mjs` | 发送 + 查重 + 风控兜底 + 校验（`--url`、`--msg`、`--wait 秒`） |
-| `send-batch.mjs` | 通用批量发送：从评审文件逐条发送（url+opening 同记录），自动分类统计、断点续跑（`--review`、`--limit`、`--resume-log`、`--force`、`--dry-run`） |
+| `send-batch.mjs` | 通用批量发送：从评审文件逐条发送（url+opening 同记录），自动分类统计、断点续跑（`--review`、`--limit`、`--resume-log`、`--force`、`--dry-run`、`--interval min,max`） |
 | `filter-sent.mjs` | 精筛前双保险：从当日 jobs 文件剔除已发送 URL（`--date`、`--dry-run`） |
 | `validate-openings.mjs` | 开场白质量校验：长度/禁用词/含数据/结尾同质/两两相似度/风格分布（`node validate-openings.mjs <JSON或CSV> [--threshold 0.4]`） |
 | `check-unread.mjs` | 消息列表级筛选：[送达] + 昨天及以前（参数为数量） |
@@ -38,7 +50,7 @@
 
 ## 3. 配置（profile.yaml）
 
-- 硬过滤：`city` / `city_code`、`salary_strict` / `salary_relaxed`（单位 K）、`exclude_keywords`、`exclude_companies`、`jd_hard_exclude`（`{city}` 会被替换为城市名）、`daily_target` / `daily_max`、`collect_pool_ratio`（原始池 = daily_target × 倍数）、`mode`（auto=直接发送 / test=先审核）、`favorites_skip_screening`（收藏岗位跳过筛选直投）、`followup_*`、`send_interval_seconds`；
+- 硬过滤：`city` / `city_code`、`salary_strict` / `salary_relaxed`（单位 K）、`exclude_keywords`、`exclude_companies`、`jd_hard_exclude`（`{city}` 会被替换为城市名）、`daily_target` / `daily_max`、`collect_pool_ratio`（原始池 = daily_target × 倍数）、`mode`（auto=直接发送 / test=先审核）、`favorites_skip_screening`（收藏岗位跳过筛选直投）、`followup_*`、`send_interval_seconds`（示例 [3,8] 秒 ≈ 半小时 100 条；风控时可回调 [30,90]）；
 - AI 画像：`profile.direction` / `summary` / `resume_file` / `company_standards` / `opening_style` / `followup_style`；
 - 浏览器：`chrome.executable` / `debug_port` / `user_data_dir`（支持 `~` 展开）/ `start_url`；
 - 修改配置无需改脚本；AI 判断与话术中的一切数据以简历文件为准，摘要仅供定位卖点（提示词模板已内置该优先级规则）。
@@ -79,9 +91,11 @@ node scripts/send.mjs --url https://www.zhipin.com/job_detail/xxx.html --msg "4�
 ```bash
 node scripts/send-batch.mjs --review data/2026-08-11-review.json
 node scripts/send-batch.mjs --review data/2026-08-11-评审清单.csv --limit 50 --resume-log data/batch-sent.log
+node scripts/send-batch.mjs --review data/review.json --interval 3,8
 ```
 
 - url 与 opening 取自同一条记录，杜绝手工配对；AI 只允许用本脚本发送，禁止自写发送循环；
+- 节奏：默认 profile.yaml 的 `send_interval_seconds`，`--interval min,max` 临时覆盖；启动时打印预计总时长；
 - 统计：成功 / 已沟通跳过 / 身份不符跳过 / 失败；风控即停；`--resume-log` 断点续跑。
 
 ### check-followup.mjs

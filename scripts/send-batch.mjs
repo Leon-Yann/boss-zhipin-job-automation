@@ -3,7 +3,7 @@
 // url 与 opening 取自同一条记录，杜绝手工配对；
 // send.mjs 内部会跳过已沟通岗位（exit 4）、做身份校验（exit 3）、检测风控（exit 1）
 // 用法：
-//   node scripts/send-batch.mjs --review <文件> [--limit N] [--resume-log <路径>] [--force] [--dry-run]
+//   node scripts/send-batch.mjs --review <文件> [--limit N] [--resume-log <路径>] [--force] [--dry-run] [--interval 3,8]
 import { readFileSync, appendFileSync, existsSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { loadConfig } from "./config.mjs";
@@ -92,6 +92,14 @@ async function main() {
   const limit = parseInt(args.limit || String(targets.length), 10);
   const slice = targets.slice(0, limit);
 
+  let [minWait, maxWait] = cfg.send_interval_seconds || [30, 90];
+  if (args.interval) {
+    const parts = String(args.interval).split(",").map((s) => parseInt(s, 10));
+    if (parts.length !== 2 || !(parts[0] > 0) || parts[1] < parts[0])
+      throw new Error("--interval 格式错误，应为 min,max 如 --interval 3,8");
+    [minWait, maxWait] = parts;
+  }
+
   const resumeLog = args["resume-log"] || null;
   const tried = new Set();
   if (resumeLog && existsSync(resumeLog)) {
@@ -105,7 +113,11 @@ async function main() {
     return;
   }
 
-  const [minWait, maxWait] = cfg.send_interval_seconds || [30, 90];
+  console.log(
+    "发送节奏：间隔 " + minWait + "-" + maxWait + " 秒，预计 " +
+      Math.round((slice.length * (12 + (minWait + maxWait) / 2)) / 60) +
+      " 分钟（每条约 12 秒操作开销 + 平均间隔）"
+  );
   const stats = { sent: 0, skipped: 0, contacted: 0, mismatch: 0, failed: 0 };
 
   for (let i = 0; i < slice.length; i++) {
@@ -144,7 +156,7 @@ async function main() {
       console.log("⚠️ 发送失败（exit " + code + "），继续下一条");
     }
     if (resumeLog) appendFileSync(resumeLog, t.url + "\n");
-    await sleep(1500);
+    await sleep(1000);
   }
   console.log("\n===== 批量完成 =====");
   console.log(

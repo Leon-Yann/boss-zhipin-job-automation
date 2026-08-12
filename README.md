@@ -67,6 +67,8 @@ node scripts/install-skill.mjs
 
 Codex 会按技能里的手册自动完成：采集 → 精筛 → 生成开场白 → 发送 → 跟进。你只需要在它需要授权或扫码时确认。
 
+如果只拿到了 Skill（本地还没有项目），不需要手动下载：Skill 首次运行时会自动从本仓库获取最新项目文件（`git clone` + `npm install`），之后每次运行自动 `git pull` 更新；没有 `profile.yaml` 时还会引导你完成首次配置。
+
 #### 方式 B：手动配合任意 AI（不用 Codex 也能用）
 
 每天按下面 5 步操作：
@@ -130,7 +132,7 @@ node scripts/check-followup.mjs 20
 | | favorites_skip_screening | 收藏岗位跳过筛选直接沟通 |
 | 每日与跟进 | daily_target / daily_max / collect_pool_ratio | 每日目标（筛出并发送的条数）、上限、采集池倍数 |
 | | followup_* | 跟进间隔、最长天数、每人最多消息数 |
-| | send_interval_seconds | 批量发送随机间隔（拟人节奏） |
+| | send_interval_seconds | 批量发送随机间隔（示例 3-8 秒 ≈ 半小时发完 100 条；风控时可调回 30-90 秒） |
 | 运行模式 | mode | `test`=先审核后发送；`auto`=直接发送（建议先 test） |
 | AI 画像 | direction / summary / resume_file | 求职方向、经历摘要、简历文件路径 |
 | | company_standards / opening_style / followup_style | 公司入选标准、话术风格 |

@@ -127,7 +127,7 @@ export async function sendOpening({ url, msg, wait = 0, company = "", force = fa
   // 等待导航完成并校验当前 URL 与目标一致（防止页面未加载完就操作旧页面）
   let urlOk = false;
   for (let i = 0; i < 15 && !urlOk; i++) {
-    await sleep(600);
+    await sleep(500);
     const cur = await evalIn(`(() => location.href)()`);
     urlOk = String(cur).split("?")[0] === url.split("?")[0];
   }
@@ -148,7 +148,7 @@ export async function sendOpening({ url, msg, wait = 0, company = "", force = fa
         .find((e) => /立即沟通|继续沟通/.test(e.textContent || "") && e.children.length === 0);
       return el ? el.textContent.trim() : "";
     })()`);
-    if (!btnText) await sleep(1000);
+    if (!btnText) await sleep(800);
   }
   if (!btnText) throw new Error("未找到沟通按钮");
   if (btnText.includes("继续沟通")) {
@@ -198,7 +198,7 @@ export async function sendOpening({ url, msg, wait = 0, company = "", force = fa
     console.log("点击次数 " + (attempt + 1) + "：" + (clicked === undefined ? "ok" : "no-btn"));
     // 被动等待输入框出现（最多 10 秒）
     for (let i = 0; i < 10 && focused !== "ok"; i++) {
-      await sleep(1000);
+      await sleep(800);
       focused = await evalIn(`(() => {
         const el = document.querySelector("[contenteditable].chat-input");
         if (!el) return "no-input";
@@ -293,7 +293,7 @@ export async function sendOpening({ url, msg, wait = 0, company = "", force = fa
     console.log("发送按钮（第 " + (attempt + 1) + " 次）：" + btnClicked);
     if (btnClicked === "clicked") {
       for (let i = 0; i < 8; i++) {
-        await sleep(1000);
+        await sleep(800);
         const st = await checkSent();
         if (st.empty === true && st.found === true) { sent = true; break; }
       }

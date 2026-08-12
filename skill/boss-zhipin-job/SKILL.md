@@ -9,7 +9,21 @@ description: 在 BOSS 直聘上执行求职自动化：采集岗位、AI 精筛�
 
 三段式求职流程：脚本从 BOSS 直聘批量采集岗位并按配置硬过滤（零 token）→ AI 精筛并生成开场白 → 脚本真实浏览器发送与跟进（零 token）。项目根目录：`<项目目录>`（由 `scripts/install-skill.mjs` 安装时替换为实际路径），个人配置在 `profile.yaml`，脚本在 `scripts/`，数据在 `data/`。
 
-## 开始前检查（每次执行先做）
+## 开始前：确保项目就绪（首次运行自动准备）
+
+1. 项目目录：`<项目目录>`。若此处仍是占位符、或该目录不存在，默认使用 `~/boss-zhipin-job`；
+2. 目录不存在时，自动从 GitHub 获取最新项目（联网操作，需用户授权）：
+
+```bash
+git clone https://github.com/Leon-Yann/boss-zhipin-job-automation.git <项目目录>
+cd <项目目录> && npm install
+```
+
+3. 目录已存在且是 git 仓库：执行 `git pull` 获取最新版本；若本地有未提交修改或不是 git 仓库，跳过更新并继续；
+4. 若 `profile.yaml` 不存在：复制 `profile.example.yaml` 为 `profile.yaml`，引导用户填写城市、关键词、简历路径，并运行 `node scripts/load-config.mjs --check` 校验通过后再继续；
+5. 之后所有命令都在项目目录下执行。
+
+## 开始前检查（每次执行）
 
 1. 校验配置：`cd <项目目录> && node scripts/load-config.mjs --check`，失败则请用户修复 profile.yaml；
 2. 检查调试 Chrome：`node scripts/launch-chrome.mjs --check`（localhost:9222）。沙箱内连不上 localhost，必须提权运行；
@@ -25,7 +39,7 @@ description: 在 BOSS 直聘上执行求职自动化：采集岗位、AI 精筛�
 5. 整理评审清单 CSV：列固定为 日期,来源,公司,岗位名称,薪资,职位详情(原文),开场白,状态,BOSS在线,链接；职位详情必须是脚本提取的原文，不得由 AI 改写；
 6. 模式：按 profile.yaml 的 `mode` 执行——`auto` = 生成后直接发送，不再逐条征求确认；`test` = 先展示评审清单给用户审核，确认后才发送。用户口头要求可临时覆盖；
 7. 质量校验：发送前运行 `node scripts/validate-openings.mjs <评审文件>`（JSON 或 CSV），有"❌ [重写]"标记的条目标识后让 AI 重写对应条（只重写不合格的），再进入发送；
-8. 发送：运行 `node scripts/send-batch.mjs --review <评审文件>`（url 与 opening 取自同一条记录；send.mjs 自动跳过已沟通岗位并强制身份校验）。**禁止手写发送循环或逐条手工配对**；
+8. 发送：运行 `node scripts/send-batch.mjs --review <评审文件>`（url 与 opening 取自同一条记录；send.mjs 自动跳过已沟通岗位并强制身份校验）。节奏默认来自 profile.yaml 的 `send_interval_seconds`（示例 [3,8] 秒 ≈ 半小时发完 100 条），可用 `--interval 3,8` 临时覆盖；**禁止手写发送循环或逐条手工配对**；
 9. 批量验证：`node scripts/verify-sends.mjs`。
 
 ## 任务二：跟进未读 HR

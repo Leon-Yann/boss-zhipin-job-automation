@@ -55,7 +55,7 @@ collect_pool_ratio: 3
 followup_interval_days: 1
 followup_max_days: 3
 followup_max_messages: 4
-send_interval_seconds: [30, 90]
+send_interval_seconds: [30, 90]  # 保守拟人节奏；需要快速发完可改为 [3,8]（风控风险升高）
 
 # 运行模式：建议先用 test 验收筛选与话术质量，确认后改成 auto
 mode: test
